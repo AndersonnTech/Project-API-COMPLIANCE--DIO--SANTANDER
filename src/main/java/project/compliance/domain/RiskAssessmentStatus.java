@@ -1,0 +1,7 @@
+package project.compliance.domain;
+
+public enum RiskAssessmentStatus {
+    APPROVED,
+    REJECTED,
+    MANUAL_REVIEW
+}
