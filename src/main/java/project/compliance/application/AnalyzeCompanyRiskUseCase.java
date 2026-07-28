@@ -13,10 +13,7 @@ public class AnalyzeCompanyRiskUseCase {
     }
 
     public void execute(Company domain) {
-        sanctionClient.getCompanyRisk(domain.getRegistrationNumber());
-
-        // KYC -> San
-        // AML
+       var sanctions = sanctionClient.getCompanyRisk(domain.getRegistrationNumber());
 
     }
 }
