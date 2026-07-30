@@ -12,4 +12,8 @@ public class Company {
     private String name;
     private String registrationNumber;
     private Optional<RiskAssessment> riskAssessment;
+
+    public void applyRiskAssessment(RiskAssessment riskAssessment) {
+        this.riskAssessment = Optional.of(riskAssessment);
+    }
 }
