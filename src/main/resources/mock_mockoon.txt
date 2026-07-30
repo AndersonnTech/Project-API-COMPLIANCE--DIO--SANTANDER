@@ -1,0 +1,68 @@
+url: aml/v1/screening/:registrationNumber
+Rules: Header -> Authorization = Bearer xyz123
+
+{{!-- riskLevel --}}
+{{setVar 'riskLevel' (oneOf (array 'LOW' 'MEDIUM' 'HIGH'))}}
+
+{{!-- score --}}
+{{#if (eq (getVar 'riskLevel') 'LOW')}}
+  {{setVar 'score' (faker 'number.int' min=0 max=30)}}
+{{else if (eq (getVar 'riskLevel') 'MEDIUM')}}
+  {{setVar 'score' (faker 'number.int' min=31 max=60)}}
+{{else}}
+  {{setVar 'score' (faker 'number.int' min=61 max=100)}}
+{{/if}}
+
+{{!-- isPepUser --}}
+{{#if (eq (getVar 'riskLevel') 'HIGH')}}
+  {{setVar 'isPepUser' true}}
+{{/if}}
+{{#if (eq (getVar 'riskLevel') 'MEDIUM')}}
+  {{setVar 'isPepUser' (boolean)}}
+{{/if}}
+{{#if (eq (getVar 'riskLevel') 'LOW')}}
+  {{setVar 'isPepUser' false}}
+{{/if}}
+
+{{!-- AML flags base --}}
+{{setVar 'amlFlags' (array
+  'SANCTIONS_MATH'
+  'ADVERSE_MEDIA'
+  'HIGH_RISK_COUNTRY'
+  'SUSPICIOUS_ACTIVITY'
+  'STRUCTURING'
+  'HIGH_VALUE_EXPECTED'
+)}}
+
+{{#if (eq (getVar 'riskLevel') 'HIGH')}}
+  {{setVar 'flagCount' (faker 'number.int' min=1 max=5)}}
+{{else if (eq (getVar 'riskLevel') 'MEDIUM')}}
+  {{setVar 'flagCount' (faker 'number.int' min=1 max=3)}}
+{{else}}
+  {{setVar 'flagCount' (faker 'number.int' min=0 max=1)}}
+{{/if}}
+
+{{setVar 'selectedFlags' (slice (getVar 'amlFlags') 0 (getVar 'flagCount'))}}
+
+{{#if (getVar 'isPepUser')}}
+  {{setVar 'selectedFlags' (concat (getVar 'selectedFlags') (array 'PEP_ASSOCIATED'))}}
+{{/if}}
+
+{
+  "riskLevel": "{{getVar 'riskLevel'}}",
+  "riskScore": {{getVar 'score'}},
+  "flags": {{{someOf (getVar 'selectedFlags') 5 5 true}}},
+  "pep": {
+    "ispep": {{getVar 'isPepUser'}},
+    "occurrences": [
+      {{#if (getVar 'isPepUser')}}
+        {{#repeat (faker 'number.int' min=1 max=3)}}
+        {
+          "personName": "{{faker 'person.fullName'}}",
+          "position": "{{faker 'person.jobTitle'}}"
+        }{{#unless @last}},{{/unless}}
+        {{/repeat}}
+      {{/if}}
+    ]
+  }
+}

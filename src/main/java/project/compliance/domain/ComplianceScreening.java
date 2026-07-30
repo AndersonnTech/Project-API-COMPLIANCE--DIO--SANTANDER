@@ -16,7 +16,7 @@ public record ComplianceScreening(
     public record AmlProfile(
             int riskScore,
             List<String> riskFlags,
-            boolean isPepPresent,
+            Boolean isPepPresent,
             List<PoliticalExposure> exposures
     ) {
         public record PoliticalExposure(
